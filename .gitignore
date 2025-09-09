@@ -1,0 +1,31 @@
+# Ninja
+.ninja_deps
+.ninja_log
+build.ninja
+rules.ninja
+
+# --- Build directories ---
+/build/
+/out/
+/bin/
+/lib/
+/obj/
+
+# --- CLion (JetBrains) ---
+.idea/
+/cmake-build-*/
+
+# --- Visual Studio ---
+*.sln
+*.vcxproj
+*.vcxproj.*
+*.user
+*.filters
+*.vs
+/.vs/
+/Debug/
+/Release/
+/x64/
+/x86/
+/ARM/
+/ARM64/
