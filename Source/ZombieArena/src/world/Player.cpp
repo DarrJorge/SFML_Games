@@ -1,3 +1,7 @@
+//
+// Created by Oleksandr Pogorelov.
+//
+
 #include "Player.h"
 #include "ResourceManager.h"
 #include "src/core/GameTypes.h"
@@ -56,14 +60,14 @@ void Player::setAimPosition(const Vector2f& worldPos)
 
 bool Player::hit(int damage)
 {
-    if (damage <= 0) return false;
+    if (damage <= 0 || isDied()) return false;
     if (m_invincibleFor > 0.f) return false; // ignore during i-frames
 
     const auto hit = static_cast<int>(m_health - damage);
     m_health = std::max(0, hit);
     m_invincibleFor = INVINCIBLE_DURATION;
-    std::cout << "health: " << m_health << std::endl;
-    return m_health == 0;
+
+    return true;
 }
 
 bool Player::heal(int hp)

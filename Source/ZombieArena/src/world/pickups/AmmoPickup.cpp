@@ -1,5 +1,5 @@
 //
-// Created by Oleksandr Pogorelov on 6.9.2025.
+// Created by Oleksandr Pogorelov.
 //
 
 #include "AmmoPickup.h"
@@ -13,8 +13,6 @@ AmmoPickup::AmmoPickup(const Texture& tex, const Vector2f& pos, int bullets)
 
 bool AmmoPickup::applyTo(Player& player)
 {
-    // предположим, что Player умеет давать доступ к WeaponSystem
-    // или можно вызвать player.addAmmo(m_ammo);
-    // тут зависит от твоей архитектуры
+    // TODO @now is true
     return true;
 }

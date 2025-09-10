@@ -4,7 +4,6 @@
 
 #include "Game.h"
 #include "ResourceManager.h"
-#include <iostream>
 
 using namespace sf;
 
@@ -12,13 +11,14 @@ Game::Game(RenderWindow& window, Vector2u resolution)
     : m_window(window)
     , m_resolution(resolution)
     , m_events()
-    , m_world(resolution, m_events)
+    , m_world(*this, resolution, m_events)
     , m_input(m_events)
     , m_spawn(m_world, m_events, 5.f)
     , m_physics(m_world, m_events)
     , m_combat(m_world, m_events)
     , m_render(m_world)
     , m_hud(m_world, m_events, resolution)
+    , m_sound(m_events)
 {
 }
 
@@ -29,17 +29,8 @@ Game::~Game()
 
 void Game::init()
 {
-    const IntRect arenaSize({0, 0}, {800, 800});
-    m_world.buildArena(arenaSize);
-
-    // Center player at arena center
-    const auto& arena = m_world.arena();
-    const sf::Vector2f spawnPos{
-            static_cast<float>(arena.position.x + arena.size.x  / 2),
-            static_cast<float>(arena.position.y + arena.size.y / 2)
-    };
-    m_world.player().spawn(spawnPos);
-    m_world.player().setArena(arena);
+    const IntRect initialArenaSize({0, 0}, {800, 800});
+    m_world.init(initialArenaSize);
 
     changeState(GameState::LEVELING_UP);
 }

@@ -1,5 +1,5 @@
 //
-// Created by Oleksandr Pogorelov on 2.9.2025.
+// Created by Oleksandr Pogorelov.
 //
 
 #include "Pickup.h"

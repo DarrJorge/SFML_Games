@@ -34,6 +34,10 @@ struct BulletHitEnemyEvent { size_t bulletIdx; size_t enemyIdx;};
 struct PlayerTouchedPickupEvent { size_t pickupIdx;};
 struct PickupCollectedEvent { size_t pickupIdx;};
 struct EnemyHitPlayerEvent { size_t enemyIdx; };
+struct ReloadWeaponEvent {};
+struct ShootEvent {};
+struct PlayerGetDamageEvent{};
+struct PlayerDiedEvent{};
 
 
 class EventBus

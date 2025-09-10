@@ -41,6 +41,18 @@ namespace ZombieArena::Core
             CRAWLER
         };
 
+        enum class SoundType
+        {
+            ENEMY_HIT,
+            PLAYER_HIT,
+            PICKUP,
+            SHOOT,
+            RELOAD_WEAPON,
+            POWERUP,
+            NO_AMMO,
+            COUNT
+        };
+
         struct PickupData
         {
             PickupType Type;

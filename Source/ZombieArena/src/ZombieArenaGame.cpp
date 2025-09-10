@@ -1,5 +1,5 @@
 //
-// Created by Oleksandr Pogorelov on 24.8.2025.
+// Created by Oleksandr Pogorelov
 //
 
 #include "ZombieArenaGame.h"

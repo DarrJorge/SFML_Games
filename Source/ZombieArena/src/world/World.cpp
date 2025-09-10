@@ -1,18 +1,54 @@
 //
-// Created by Oleksandr Pogorelov on 5.9.2025.
+// Created by Oleksandr Pogorelov.
 //
 
 #include "World.h"
 #include "ResourceManager.h"
+#include "../core/Game.h"
 
 using namespace sf;
 using namespace ZombieArena::Core;
 
-World::World(Vector2u resolution, EventBus& events)
-    : m_resolution(resolution), m_events(events)
+World::World(Game& game, Vector2u resolution, EventBus& events)
+    : m_game(game), m_resolution(resolution), m_events(events)
 {
     m_player = std::make_unique<Player>(Stats{10, 200});
-    m_weapons = std::make_unique<WeaponSystem>();
+    m_weapons = std::make_unique<WeaponSystem>(events);
+
+    m_playerDiedId = m_events.subscribe<PlayerDiedEvent>([this](const PlayerDiedEvent&){
+        m_game.changeState(GameState::GAME_OVER);
+        reset();
+    });
+
+    m_gameStateId = m_events.subscribe<GameStateChangedEvent>([this](const GameStateChangedEvent& e){
+        if (e.newState == Types::GameState::PLAYING)
+        {
+            spawnPlayer();
+        }
+    });
+}
+
+World::~World()
+{
+    if (m_playerDiedId) m_events.unsubscribe<PlayerDiedEvent>(m_playerDiedId);
+    if (m_gameStateId) m_events.unsubscribe<GameStateChangedEvent>(m_gameStateId);
+}
+
+void World::init(const sf::IntRect& rectArena)
+{
+    buildArena(rectArena);
+    spawnPlayer();
+}
+
+void World::spawnPlayer()
+{
+    // Center player at arena center
+    const sf::Vector2f spawnPos{
+            static_cast<float>(m_arena.position.x + m_arena.size.x  / 2),
+            static_cast<float>(m_arena.position.y + m_arena.size.y / 2)
+    };
+    player().spawn(spawnPos);
+    player().setArena(m_arena);
 }
 
 void World::buildArena(const IntRect& rect)
@@ -118,4 +154,10 @@ bool World::detectCollisionWalls(const sf::Vector2f& position) const
     float maxY = static_cast<float>(m_arena.position.y + m_arena.size.y) - Constants::TILE_SIZE;
 
     return (position.y <= minY) || (position.y >= maxY) || (position.x <= minX) || (position.x >= maxX);
+}
+
+void World::reset()
+{
+    enemies().clear();
+    pickups().clear();
 }

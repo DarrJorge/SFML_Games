@@ -1,15 +1,17 @@
 //
-// Created by Oleksandr Pogorelov on 27.8.2025.
+// Created by Oleksandr Pogorelov.
 //
 
 #include "WeaponSystem.h"
 #include "Player.h"
 #include "../utils/Utils.h"
+#include "../core/Events.h"
 
 using namespace sf;
 using namespace ZombieArena::Utils;
 
-WeaponSystem::WeaponSystem()
+WeaponSystem::WeaponSystem(EventBus& events)
+    : m_events(events)
 {
     m_bullets.resize(100);
 }
@@ -22,6 +24,7 @@ void WeaponSystem::update(float deltaTime)
         m_reloadTimer -= deltaTime;
         if (m_reloadTimer <= 0.f)
         {
+            m_events.emit(ReloadWeaponEvent{});
             reloadClip();
         }
     }
@@ -77,6 +80,9 @@ void WeaponSystem::tryShoot(const Player& owner)
     const auto playerPos = owner.getCenter();
     const auto aimPos = owner.getAimPosition();
     const auto spawnBulletPos = playerPos + Utils::Normalize2D(aimPos - playerPos) * 10.f;
+
+    m_events.emit(ShootEvent{});
+
     bullet.shoot(spawnBulletPos, aimPos);
 
     m_bulletsInClip--;

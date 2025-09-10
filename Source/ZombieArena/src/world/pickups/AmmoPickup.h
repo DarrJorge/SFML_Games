@@ -1,5 +1,5 @@
 //
-// Created by Oleksandr Pogorelov on 6.9.2025.
+// Created by Oleksandr Pogorelov
 //
 
 #pragma once

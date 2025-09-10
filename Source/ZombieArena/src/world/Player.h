@@ -1,3 +1,8 @@
+//
+// Created by Oleksandr Pogorelov.
+//
+
+
 #pragma once
 
 #include "SFML/Graphics.hpp"

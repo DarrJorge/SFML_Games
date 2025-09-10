@@ -6,7 +6,6 @@
 
 #include <SFML/Graphics.hpp>
 #include "GameTypes.h"
-#include "Time.h"
 #include "Events.h"
 #include "../world/World.h"
 #include "../systems/InputSystem.h"
@@ -15,6 +14,7 @@
 #include "../systems/CombatSystem.h"
 #include "../systems/RenderSystem.h"
 #include "../systems/HUDSystem.h"
+#include "../systems/SoundSystem.h"
 
 using namespace ZombieArena::Core::Types;
 
@@ -46,4 +46,5 @@ private:
     CombatSystem m_combat;
     RenderSystem m_render;
     HUDSystem m_hud;
+    SoundSystem m_sound;
 };

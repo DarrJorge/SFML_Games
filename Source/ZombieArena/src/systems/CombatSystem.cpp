@@ -1,10 +1,9 @@
 //
-// Created by Oleksandr Pogorelov on 5.9.2025.
+// Created by Oleksandr Pogorelov.
 //
 
 #include "CombatSystem.h"
 #include <algorithm>
-#include <iostream>
 
 namespace
 {
@@ -120,7 +119,12 @@ void CombatSystem::processEnemyHits()
 
         if (player.hit(enemy.attack()))
         {
-            m_events.emit(GameStateChangedEvent{GameState::GAME_OVER});
+            m_events.emit(PlayerGetDamageEvent{});
+
+            if (player.isDied())
+            {
+                m_events.emit(PlayerDiedEvent{});
+            }
             break;
         }
     }

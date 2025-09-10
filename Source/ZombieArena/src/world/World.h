@@ -1,5 +1,5 @@
 //
-// Created by Oleksandr Pogorelov on 5.9.2025.
+// Created by Oleksandr Pogorelov.
 //
 
 #pragma once
@@ -14,12 +14,16 @@
 #include "Enemy.h"
 #include "WeaponSystem.h"
 
+class Game;
 
 class World
 {
 public:
-    World(sf::Vector2u resolution, EventBus& events);
+    World(Game& game, sf::Vector2u resolution, EventBus& events);
+    ~World();
 
+    void init(const sf::IntRect& rectArena);
+    void spawnPlayer();
     void buildArena(const sf::IntRect& rect);
     void update(float deltaTime);
     void resetClocksGameplay();
@@ -39,6 +43,11 @@ public:
     std::mt19937& rng() { return m_rng; }
 
 private:
+
+    void reset();
+
+private:
+    Game& m_game;
     EventBus& m_events;
     sf::Vector2u m_resolution;
     sf::IntRect m_arena{};
@@ -53,6 +62,8 @@ private:
     sf::Texture m_bgTexture;
 
     size_t m_scores{0};
+    size_t m_playerDiedId{0};
+    size_t m_gameStateId{0};
 
     friend class RenderSystem;
 };

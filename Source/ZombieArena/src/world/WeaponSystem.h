@@ -1,5 +1,5 @@
 //
-// Created by Oleksandr Pogorelov on 27.8.2025.
+// Created by Oleksandr Pogorelov
 //
 
 #pragma once
@@ -10,14 +10,14 @@
 #include "Bullet.h"
 #include "SFML/Graphics.hpp"
 
-class Weapon;
 class Bullet;
 class Player;
+class EventBus;
 
 class WeaponSystem
 {
 public:
-    WeaponSystem();
+    WeaponSystem(EventBus& events);
 
     void update(float deltaTime);
 
@@ -37,6 +37,10 @@ public:
 private:
     void tryShoot(const Player& owner);
     void reloadClip();
+
+private:
+
+    EventBus& m_events;
 
     bool m_firing{false};
     float m_fireRate{4.f};
