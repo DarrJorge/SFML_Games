@@ -4,7 +4,7 @@
 
 A top-down 2D zombie shooter built with **C++20** and **SFML**.  
 Originally inspired by the *ZombieArena* tutorial, but fully redesigned with my own modular, event-driven architecture:  
-separate subsystems (Input, Physics, Combat, Spawn, Render, HUD), an `EventBus` for decoupled communication, and a clear separation of world state (`World`) from game flow (`Game`).
+separate subsystems (Input, Physics, Combat, Spawn, Render, Sound, HUD), an `EventBus` for decoupled communication, and a clear separation of world state (`World`) from game flow (`Game`).
 
 📦 From the original tutorial I only reused **graphics and sound resources** — all gameplay code, systems, and architecture were implemented from scratch.
 
