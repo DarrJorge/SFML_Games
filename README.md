@@ -38,6 +38,7 @@ separate subsystems (Input, Physics, Combat, Spawn, Render, Sound, HUD), an `Eve
 - Difficulty settings and arena variations.  
 - Gamepad support.
 - VFX effects
+- HUD improvements: visual style refinements, in-game menu integration. 
 
 ## ⚙️ Build Instructions
 
