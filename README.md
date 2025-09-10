@@ -33,8 +33,7 @@ separate subsystems (Input, Physics, Combat, Spawn, Render, HUD), an `EventBus` 
 - **Esc** → Exit 
 
 ## 🧩 Future Improvements
-
-- Sound effects (shooting, hits, zombie death).   
+ 
 - Expanded weapon upgrades & powerups.  
 - Difficulty settings and arena variations.  
 - Gamepad support. 
