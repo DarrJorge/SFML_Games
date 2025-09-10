@@ -36,7 +36,8 @@ separate subsystems (Input, Physics, Combat, Spawn, Render, HUD), an `EventBus` 
  
 - Expanded weapon upgrades & powerups.  
 - Difficulty settings and arena variations.  
-- Gamepad support. 
+- Gamepad support.
+- VFX effects
 
 ## ⚙️ Build Instructions
 
