@@ -25,7 +25,7 @@ private:
     sf::RectangleShape m_shape;
 
     bool m_inFlight{false};
-    float m_speed{200.f};
+    float m_speed{350.f};
 
     float m_distanceX;
     float m_distanceY;

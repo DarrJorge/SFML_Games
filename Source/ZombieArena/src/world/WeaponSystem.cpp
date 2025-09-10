@@ -24,7 +24,6 @@ void WeaponSystem::update(float deltaTime)
         m_reloadTimer -= deltaTime;
         if (m_reloadTimer <= 0.f)
         {
-            m_events.emit(ReloadWeaponEvent{});
             reloadClip();
         }
     }
@@ -50,6 +49,7 @@ void WeaponSystem::reloadClip()
     {
         m_bulletsInClip = m_clipSize;
         m_clips = std::clamp(m_clips - 1, 0, m_clips);
+        m_events.emit(ReloadWeaponEvent{});
     }
 }
 
@@ -81,10 +81,10 @@ void WeaponSystem::tryShoot(const Player& owner)
     const auto aimPos = owner.getAimPosition();
     const auto spawnBulletPos = playerPos + Utils::Normalize2D(aimPos - playerPos) * 10.f;
 
-    m_events.emit(ShootEvent{});
-
     bullet.shoot(spawnBulletPos, aimPos);
 
     m_bulletsInClip--;
     m_cooldown = 1.f / m_fireRate;
+
+    m_events.emit(ShootEvent{});
 }

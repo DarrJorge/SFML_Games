@@ -63,7 +63,6 @@ void Game::fixedUpdate(float deltaTime)
             // TODO implementation will be later
             break;
     }
-    m_hud.update(deltaTime);
 }
 
 void Game::render(RenderWindow& window)

@@ -4,7 +4,6 @@
 
 #include "HUDSystem.h"
 #include <algorithm>
-#include <cstdio>
 #include "ResourceManager.h"
 #include "../core/Events.h"
 #include "../world/World.h"
@@ -47,24 +46,37 @@ HUDSystem::HUDSystem(World& world, EventBus& events, sf::Vector2u res)
         , m_gameOverText(m_font, "Press Enter to play", 125)
         , m_ammoText(m_font, "", 55)
         , m_levelUpText(m_font, "", 55)
-        //, m_hitScoreText(m_font, "", 55)
         , m_enemiesRemainingText(m_font, "", 55)
-        //, m_waveNumberText(m_font, "", 55)
 {
     rebuildStaticLayout();
-    refreshTexts();
+    updateHealthBar();
+    updateScoresForKills();
+    updateAmmoText();
 
     // Subscribe on state changes
     m_stateChangedSubId = m_events.subscribe<GameStateChangedEvent>(
             [this](const GameStateChangedEvent& e){ onGameStateChanged(e.newState); });
+
+    m_playerGotDamageId = m_events.subscribe<PlayerGetDamageEvent>(
+            [this](const PlayerGetDamageEvent& e){ updateHealthBar(); });
+
+    m_enemyKilledId = m_events.subscribe<EnemyKilledEvent>(
+            [this](const EnemyKilledEvent& e){ updateScoresForKills(); });
+
+    m_shootId = m_events.subscribe<ShootEvent>(
+            [this](const ShootEvent& e){ updateAmmoText(); });
+
+    m_reloadWeaponId = m_events.subscribe<ReloadWeaponEvent>(
+            [this](const ReloadWeaponEvent& e){ updateAmmoText(); });
 }
 
 HUDSystem::~HUDSystem()
 {
-    if (m_stateChangedSubId)
-    {
-        m_events.unsubscribe<GameStateChangedEvent>(m_stateChangedSubId);
-    }
+    if (m_stateChangedSubId) m_events.unsubscribe<GameStateChangedEvent>(m_stateChangedSubId);
+    if (m_playerGotDamageId) m_events.unsubscribe<PlayerGetDamageEvent>(m_playerGotDamageId);
+    if (m_enemyKilledId) m_events.unsubscribe<EnemyKilledEvent>(m_enemyKilledId);
+    if (m_shootId) m_events.unsubscribe<ShootEvent>(m_shootId);
+    if (m_reloadWeaponId) m_events.unsubscribe<ReloadWeaponEvent>(m_reloadWeaponId);
 }
 
 void HUDSystem::rebuildStaticLayout()
@@ -73,13 +85,10 @@ void HUDSystem::rebuildStaticLayout()
     const float H = static_cast<float>(m_resolution.y);
 
     MakeText(m_pausedText, 96, Color::White, {W*0.5f - 300.f, H*0.4f}, "PAUSED\nPress Enter to continue");
-    MakeText(m_levelUpText, 48, Color::White, {W*0.5f - 380.f, H*0.3f},
-                              "LEVELING UP\nPress 1..6 to choose upgrade");
+    MakeText(m_levelUpText, 48, Color::White, {W*0.5f - 380.f, H*0.3f}, "LEVELING UP\nPress 1..6 to choose upgrade");
     MakeText(m_gameOverText, 96, Color::White, {W*0.5f - 350.f, H*0.4f}, "GAME OVER\nPress Enter to play");
-
-    //m_healthText  = MakeText(m_font, 24, Color::White, {20.f, 16.f},  "HP: 100/100");
-    MakeText(m_ammoText, 24, Color::White, {20.f, 48.f},  "Ammo: 6 (reloading: no)");
-    MakeText(m_enemiesRemainingText, 24, Color::White, {20.f, 80.f},  "Zombies: 0");
+    MakeText(m_ammoText, 24, Color::White, {20.f, 48.f},  "");
+    MakeText(m_enemiesRemainingText, 24, Color::White, {20.f, 80.f},  "");
 
     const Vector2f barPos{20.f, H - 40.f};
     const Vector2f barSizeBg{300.f, 20.f};
@@ -95,48 +104,6 @@ void HUDSystem::rebuildStaticLayout()
     m_healthBar.setFillColor(sf::Color(200, 40, 40));
 }
 
-void HUDSystem::refreshTexts()
-{
-    // HEALTH
-    const int hp  = m_world.player().getHealth();
-    const int hpM = m_world.player().getMaxHealth();
-
-    const float ratio = std::clamp(hpM > 0 ? (hp / static_cast<float>(hpM)) : 0.f, 0.f, 1.f);
-    auto barSize = m_healthBarBg.getSize();
-    m_healthBar.setSize({barSize.x * ratio, barSize.y});
-    //char hpBuf[64];
-    //std::snprintf(hpBuf, sizeof(hpBuf), "HP: %d/%d", hp, hpM);
-    //m_healthText.setString(hpBuf);
-
-    // AMMO
-    const auto& weapons = m_world.weapons();
-    const int inClip = weapons.inClip();
-    const int clipSize = weapons.clipSize();
-    //const bool reloading = weapons.reloading();
-
-    char ammoBuf[96];
-    std::snprintf(ammoBuf, sizeof(ammoBuf), "Ammo: %d/%d", inClip, clipSize);
-    m_ammoText.setString(ammoBuf);
-
-    int alive = 0;
-    for (auto& e : m_world.enemies()) {
-        if (e && e->isAlive()) ++alive;
-    }
-    char zBuf[64];
-    std::snprintf(zBuf, sizeof(zBuf), "Zombies: %d", alive);
-    m_enemiesRemainingText.setString(zBuf);
-}
-
-void HUDSystem::update(float deltaTime)
-{
-    m_updateAccum += deltaTime;
-    if (m_updateAccum >= m_updateEvery)
-    {
-        refreshTexts();
-        m_updateAccum = 0.f;
-    }
-}
-
 void HUDSystem::draw(RenderWindow& window, GameState state)
 {
     const sf::View prev = window.getView();
@@ -144,7 +111,6 @@ void HUDSystem::draw(RenderWindow& window, GameState state)
 
     window.draw(m_healthBarBg);
     window.draw(m_healthBar);
-    //window.draw(m_healthText);
     window.draw(m_ammoText);
     window.draw(m_enemiesRemainingText);
 
@@ -167,5 +133,30 @@ void HUDSystem::draw(RenderWindow& window, GameState state)
 
 void HUDSystem::onGameStateChanged(GameState state)
 {
-    refreshTexts();
+    updateHealthBar();
+    updateScoresForKills();
+    updateAmmoText();
+}
+
+void HUDSystem::updateHealthBar()
+{
+    auto& player = m_world.player();
+    const float value = player.getMaxHealth() > 0 ? (player.getHealth() / static_cast<float>(player.getMaxHealth())) : 0.f;
+    const float ratio = std::clamp(value, 0.f, 1.f);
+    auto barSize = m_healthBarBg.getSize();
+    m_healthBar.setSize({barSize.x * ratio, barSize.y});
+}
+
+void HUDSystem::updateScoresForKills()
+{
+    const int alive = std::count_if(m_world.enemies().begin(), m_world.enemies().end(),
+        [](const auto& enemy){ return enemy && enemy->isAlive();});
+
+    m_enemiesRemainingText.setString(std::format("Zombies: {}", alive));
+}
+
+void HUDSystem::updateAmmoText()
+{
+    const auto& weapons = m_world.weapons();
+    m_ammoText.setString(std::format("Ammo: {}/{}", weapons.inClip(), weapons.clipSize()));
 }

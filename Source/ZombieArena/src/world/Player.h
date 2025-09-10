@@ -58,6 +58,8 @@ public:
     float speed() const { return m_speed; }
     bool isDied() const { return m_health == 0; }
 
+    void reset();
+
 private:
     void updateVisuals();
     void clampInsideArena();

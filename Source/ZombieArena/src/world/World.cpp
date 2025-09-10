@@ -47,6 +47,7 @@ void World::spawnPlayer()
             static_cast<float>(m_arena.position.x + m_arena.size.x  / 2),
             static_cast<float>(m_arena.position.y + m_arena.size.y / 2)
     };
+    player().reset();
     player().spawn(spawnPos);
     player().setArena(m_arena);
 }

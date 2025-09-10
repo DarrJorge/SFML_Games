@@ -38,6 +38,8 @@ struct ReloadWeaponEvent {};
 struct ShootEvent {};
 struct PlayerGetDamageEvent{};
 struct PlayerDiedEvent{};
+struct EnemyKilledEvent{};
+struct AllEnemiesDied{};
 
 
 class EventBus

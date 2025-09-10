@@ -22,14 +22,15 @@ public:
     HUDSystem(World& world, EventBus& events, sf::Vector2u resolution);
     ~HUDSystem();
 
-    void update(float dt);
-
     void draw(sf::RenderWindow& window, GameState state);
 
 private:
     void rebuildStaticLayout();
-    void refreshTexts();
     void onGameStateChanged(GameState state);
+
+    void updateHealthBar();
+    void updateScoresForKills();
+    void updateAmmoText();
 
 private:
     World& m_world;
@@ -37,6 +38,10 @@ private:
 
     // subscribe to events
     std::size_t m_stateChangedSubId{0};
+    std::size_t m_playerGotDamageId{0};
+    std::size_t m_enemyKilledId{0};
+    std::size_t m_shootId{0};
+    std::size_t m_reloadWeaponId{0};
 
     // View HUD (screen)
     sf::View m_hudView;
@@ -52,7 +57,4 @@ private:
     sf::RectangleShape m_healthBarBg;
     sf::RectangleShape m_healthBar;
 
-    // Timers updating
-    float m_updateAccum{0.f};
-    float m_updateEvery{0.10f}; // per to 100 ms
 };

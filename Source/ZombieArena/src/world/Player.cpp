@@ -139,3 +139,9 @@ void Player::clampInsideArena()
     m_position.y = std::clamp(m_position.y, minY, maxY);
 }
 
+void Player::reset()
+{
+    m_health = m_stats.maxHealth;
+    m_speed = m_stats.speed;
+}
+

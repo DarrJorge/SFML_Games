@@ -68,11 +68,12 @@ void CombatSystem::processBulletHits()
         if (const bool killed = enemy.hit(BULLET_DAMAGE))
         {
             m_world.addScore(SCORES_FOR_KILL);
+            m_events.emit(EnemyKilledEvent{});
 
             if (std::none_of(enemies.begin(), enemies.end(),
                 [](const auto& e){ return e && e->isAlive();}))
             {
-                m_events.emit(GameStateChangedEvent{GameState::LEVELING_UP});
+                m_events.emit(AllEnemiesDied{});
             }
         }
     }
