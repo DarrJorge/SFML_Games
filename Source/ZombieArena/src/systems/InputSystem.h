@@ -20,6 +20,7 @@ class InputSystem
 {
 public:
     explicit InputSystem(EventBus& events);
+    ~InputSystem();
 
     void handleEvent(const std::optional<sf::Event>& event);
     void pollRealtime(const sf::RenderWindow& window);
@@ -29,5 +30,8 @@ private:
     EventBus& m_events;
     std::queue<Action> m_queue;
     sf::Vector2f m_moveAxis{};
+
+    std::size_t m_startGameId{0};
+    std::size_t m_pauseGameId{0};
 
 };

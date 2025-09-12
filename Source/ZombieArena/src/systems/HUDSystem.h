@@ -48,9 +48,6 @@ private:
     sf::Vector2u m_resolution{};
 
     sf::Font m_font;
-    sf::Text m_pausedText;
-    sf::Text m_levelUpText;
-    sf::Text m_gameOverText;
     sf::Text m_ammoText;
     sf::Text m_enemiesRemainingText;
 

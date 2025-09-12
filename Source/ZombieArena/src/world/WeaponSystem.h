@@ -17,12 +17,13 @@ class EventBus;
 class WeaponSystem
 {
 public:
-    WeaponSystem(EventBus& events);
+    explicit WeaponSystem(EventBus& events);
 
     void update(float deltaTime);
 
     void startFire(const Player& owner);
     void stopFire(const Player& owner);
+    void reset();
 
     std::vector<Bullet>& bullets() { return m_bullets; };
     [[nodiscard]] const std::vector<Bullet>& bullets() const { return m_bullets; };

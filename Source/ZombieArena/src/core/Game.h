@@ -1,5 +1,5 @@
 //
-// Created by Oleksandr Pogorelov on 5.9.2025.
+// Created by Oleksandr Pogorelov.
 //
 
 #pragma once
@@ -15,6 +15,7 @@
 #include "../systems/RenderSystem.h"
 #include "../systems/HUDSystem.h"
 #include "../systems/SoundSystem.h"
+#include "../ui/MenuSystem.h"
 
 using namespace ZombieArena::Core::Types;
 
@@ -30,6 +31,7 @@ public:
     void changeState(GameState nextState);
 
     InputSystem& input() { return m_input; }
+    MenuSystem& menu() { return m_menu; }
 
 private:
     sf::RenderWindow& m_window;
@@ -38,6 +40,7 @@ private:
 
     EventBus m_events;
     World m_world;
+    MenuSystem m_menu;
 
     // systems
     InputSystem m_input;
@@ -47,4 +50,8 @@ private:
     RenderSystem m_render;
     HUDSystem m_hud;
     SoundSystem m_sound;
+
+    int m_currentWaveIndex{1};
+
+    size_t m_WaveFinishedId{0};
 };

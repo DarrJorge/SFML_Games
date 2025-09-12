@@ -21,9 +21,9 @@ World::World(Game& game, Vector2u resolution, EventBus& events)
     });
 
     m_gameStateId = m_events.subscribe<GameStateChangedEvent>([this](const GameStateChangedEvent& e){
-        if (e.newState == Types::GameState::PLAYING)
+        if (e.newState == Types::GameState::WIN)
         {
-            spawnPlayer();
+            reset();
         }
     });
 }
@@ -161,4 +161,5 @@ void World::reset()
 {
     enemies().clear();
     pickups().clear();
+    weapons().reset();
 }

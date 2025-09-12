@@ -33,6 +33,7 @@ void ZombieArenaGame::run()
                 window.close();
             }
             game.input().handleEvent(event);
+            game.menu().handleEvent(event, window);
         }
         game.input().pollRealtime(window);
 

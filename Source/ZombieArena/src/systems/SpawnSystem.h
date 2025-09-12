@@ -56,7 +56,6 @@ private:
     std::map<PickupType, PickupData> pickupsData;
     std::map<PickupType, const sf::Texture*> m_texturesPickups;
 
-    std::size_t m_stateChangedSubId{0};
     size_t m_subPickupTouchId{0};
     size_t m_subGameOverId{0};
     int m_currentWaveIndex{1};

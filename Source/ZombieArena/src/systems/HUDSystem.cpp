@@ -20,39 +20,15 @@ namespace {
     }
 }
 
-/*
-HUD::HUD(const sf::Vector2u resolution, ResourceManager& resourceManager)
-        : m_hudView(FloatRect(Vector2f(0, 0), Vector2f(resolution.x, resolution.y)))
-        , m_gameOverSprite(resourceManager.getTexture(Core::Paths::BACKGROUND_UI_PATH))
-        , m_ammoIcon(resourceManager.getTexture(Core::Paths::AMMO_ICON_PATH))
-        , m_font(resourceManager.getFont(Core::Paths::FONT_PATH))
-        , m_pausedText(m_font, "Press Enter to continue", 75)
-        , m_gameOverText(m_font, "Press Enter to play", 125)
-        , m_ammoText(m_font, "", 55)
-        , m_scoreText(m_font, "", 55)
-        , m_hitScoreText(m_font, "", 55)
-        , m_enemiesRemainingText(m_font, "", 55)
-        , m_waveNumberText(m_font, "", 55)
-{}
- */
-
 HUDSystem::HUDSystem(World& world, EventBus& events, sf::Vector2u res)
         : m_world(world)
         , m_events(events)
         , m_resolution(res)
         , m_hudView(FloatRect(Vector2f(0, 0), Vector2f(static_cast<float>(res.x), static_cast<float>(res.y))))
         , m_font(ResourceManager::getFont(Paths::FONT_PATH))
-        , m_pausedText(m_font, "Press Enter to continue", 75)
-        , m_gameOverText(m_font, "Press Enter to play", 125)
         , m_ammoText(m_font, "", 55)
-        , m_levelUpText(m_font, "", 55)
         , m_enemiesRemainingText(m_font, "", 55)
 {
-    rebuildStaticLayout();
-    updateHealthBar();
-    updateScoresForKills();
-    updateAmmoText();
-
     // Subscribe on state changes
     m_stateChangedSubId = m_events.subscribe<GameStateChangedEvent>(
             [this](const GameStateChangedEvent& e){ onGameStateChanged(e.newState); });
@@ -84,9 +60,6 @@ void HUDSystem::rebuildStaticLayout()
     const float W = static_cast<float>(m_resolution.x);
     const float H = static_cast<float>(m_resolution.y);
 
-    MakeText(m_pausedText, 96, Color::White, {W*0.5f - 300.f, H*0.4f}, "PAUSED\nPress Enter to continue");
-    MakeText(m_levelUpText, 48, Color::White, {W*0.5f - 380.f, H*0.3f}, "LEVELING UP\nPress 1..6 to choose upgrade");
-    MakeText(m_gameOverText, 96, Color::White, {W*0.5f - 350.f, H*0.4f}, "GAME OVER\nPress Enter to play");
     MakeText(m_ammoText, 24, Color::White, {20.f, 48.f},  "");
     MakeText(m_enemiesRemainingText, 24, Color::White, {20.f, 80.f},  "");
 
@@ -114,28 +87,18 @@ void HUDSystem::draw(RenderWindow& window, GameState state)
     window.draw(m_ammoText);
     window.draw(m_enemiesRemainingText);
 
-    switch (state)
-    {
-        case GameState::PAUSED:
-            window.draw(m_pausedText);
-            break;
-        case GameState::LEVELING_UP:
-            window.draw(m_levelUpText);
-            break;
-        case GameState::GAME_OVER:
-            window.draw(m_gameOverText);
-            break;
-        default:
-            break;
-    }
     window.setView(prev);
 }
 
 void HUDSystem::onGameStateChanged(GameState state)
 {
-    updateHealthBar();
-    updateScoresForKills();
-    updateAmmoText();
+    if (state == GameState::PLAYING)
+    {
+        rebuildStaticLayout();
+        updateHealthBar();
+        updateScoresForKills();
+        updateAmmoText();
+    }
 }
 
 void HUDSystem::updateHealthBar()

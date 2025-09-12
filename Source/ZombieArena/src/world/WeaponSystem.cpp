@@ -88,3 +88,11 @@ void WeaponSystem::tryShoot(const Player& owner)
 
     m_events.emit(ShootEvent{});
 }
+
+void WeaponSystem::reset()
+{
+    m_clipSize = 6;
+    m_bulletsInClip = 6;
+    m_clips = 5;
+    m_nextBullet = 0;
+}

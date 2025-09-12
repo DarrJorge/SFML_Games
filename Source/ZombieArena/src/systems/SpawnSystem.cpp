@@ -17,12 +17,7 @@
 
 using namespace sf;
 using namespace ZombieArena::Utils;
-
-namespace
-{
-    constexpr int BASE_ENEMIES_COUNT = 7;
-    constexpr int BASE_PICKUPS_COUNT = 1;
-}
+using namespace ZombieArena::Core::Constants;
 
 
 SpawnSystem::SpawnSystem(World& world, EventBus& events, float pickupRespawnSec)
@@ -56,16 +51,6 @@ SpawnSystem::~SpawnSystem()
 
 void SpawnSystem::subscribe()
 {
-    m_stateChangedSubId = m_events.subscribe<GameStateChangedEvent>([this](const GameStateChangedEvent& e){
-        if (e.newState == GameState::PLAYING)
-        {
-            if (isFinishedCurrentWave())
-            {
-                spawnNextWave(m_currentWaveIndex, BASE_ENEMIES_COUNT, BASE_PICKUPS_COUNT);
-            }
-        }
-    });
-
     m_subPickupTouchId = m_events.subscribe<PickupCollectedEvent>([this](const PickupCollectedEvent& e){
         --m_activePickups;
     });
@@ -73,16 +58,12 @@ void SpawnSystem::subscribe()
 
 void SpawnSystem::unsubscribe()
 {
-    if (m_stateChangedSubId != 0)
-    {
-        m_events.unsubscribe<GameStateChangedEvent>(m_stateChangedSubId);
-        m_events.unsubscribe<PickupCollectedEvent>(m_subPickupTouchId);
-        m_stateChangedSubId = 0;
-    }
+    if (m_subPickupTouchId != 0) m_events.unsubscribe<PickupCollectedEvent>(m_subPickupTouchId);
 }
 
 void SpawnSystem::spawnNextWave(int waveIndex, int baseEnemies, int pickupsCount)
 {
+    m_currentWaveIndex = waveIndex;
     const int enemies = std::max(1, baseEnemies + waveIndex * 3);
     spawnEnemies(enemies);
     spawnPickups(pickupsCount);

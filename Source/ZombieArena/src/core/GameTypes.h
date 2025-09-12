@@ -1,5 +1,5 @@
 //
-// Created by Oleksandr Pogorelov on 24.8.2025.
+// Created by Oleksandr Pogorelov.
 //
 
 #pragma once
@@ -18,6 +18,7 @@ namespace ZombieArena::Core
             LEVELING_UP,
             PLAYING,
             GAME_OVER,
+            WIN,
             COUNT
         };
 
@@ -93,7 +94,8 @@ namespace ZombieArena::Core
         constexpr int VERTS_IN_TILE = 6;
         constexpr float PI = std::numbers::pi_v<float>;
         constexpr float TWO_PI = 2.f * std::numbers::pi;
-
+        constexpr int BASE_ENEMIES_COUNT = 7;
+        constexpr int BASE_PICKUPS_COUNT = 1;
     }
 
     namespace Texts

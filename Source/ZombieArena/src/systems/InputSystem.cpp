@@ -5,13 +5,25 @@
 #include "InputSystem.h"
 #include "../core/Game.h"
 #include "../utils/Utils.h"
-#include <iostream>
 
 using namespace sf;
 using namespace ZombieArena::Utils;
 
 InputSystem::InputSystem(EventBus& events)
-    : m_events(events) {}
+    : m_events(events)
+{
+    m_startGameId = m_events.subscribe<ActionStartGame>(
+            [this](const ActionStartGame& e){ m_queue.emplace(ActionStartGame{}); });
+
+    m_pauseGameId = m_events.subscribe<ActionTogglePause>(
+            [this](const ActionTogglePause& e){ m_queue.emplace(ActionTogglePause{}); });
+}
+
+InputSystem::~InputSystem()
+{
+    if (m_startGameId) m_events.unsubscribe<ActionStartGame>(m_startGameId);
+    if (m_pauseGameId) m_events.unsubscribe<ActionTogglePause>(m_pauseGameId);
+}
 
 void InputSystem::handleEvent(const std::optional<sf::Event>& event)
 {
@@ -76,7 +88,7 @@ void InputSystem::dispatchActions(GameState state, World& world, Game& game)
                 // --------------------
                 if constexpr (std::is_same_v<T, ActionTogglePause>)
                 {
-                    std::cout << "ActionTogglePause" << std::endl;
+                    if (state == GameState::START || state == GameState::GAME_OVER || state == GameState::WIN) return;
                     game.changeState(state == GameState::PLAYING ? GameState::PAUSED : GameState::PLAYING);
                 }
                 // --------------------
@@ -84,16 +96,14 @@ void InputSystem::dispatchActions(GameState state, World& world, Game& game)
                 // --------------------
                 else if constexpr (std::is_same_v<T, ActionStartGame>)
                 {
-                    std::cout << "ActionStartGame" << std::endl;
-                    if (state == GameState::START || state == GameState::GAME_OVER)
-                        game.changeState(GameState::LEVELING_UP);
+                    if (state == GameState::START || state == GameState::GAME_OVER || state == GameState::WIN)
+                        game.changeState(GameState::PLAYING);
                 }
                 // --------------------
                 // Choose upgrade on LevelingUp
                 // --------------------
                 else if constexpr (std::is_same_v<T, ActionChooseUpgrade>)
                 {
-                    std::cout << "ActionChooseUpgrade" << std::endl;
                     if (state == GameState::LEVELING_UP)
                     {
                         const int slot = act.slot;
