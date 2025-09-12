@@ -5,13 +5,7 @@ file(GLOB_RECURSE SourceFiles CONFIGURE_DEPENDS
     "${CMAKE_CURRENT_SOURCE_DIR}/*.h"
 )
 
-add_executable(${PROJECT_NAME} ${SourceFiles}
-        src/systems/SoundSystem.cpp
-        src/systems/SoundSystem.h
-        src/ui/Button.cpp
-        src/ui/Button.h
-        src/ui/MenuSystem.cpp
-        src/ui/MenuSystem.h)
+add_executable(${PROJECT_NAME} ${SourceFiles})
 
 # loading general lib
 target_link_libraries(${PROJECT_NAME} PRIVATE CommonLib)
