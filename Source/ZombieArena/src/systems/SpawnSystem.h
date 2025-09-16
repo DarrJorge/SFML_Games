@@ -39,9 +39,8 @@ private:
 
     void subscribe();
     void unsubscribe();
-    [[nodiscard]] int getPickupCountForWave(int waveIndex) const;
+    [[nodiscard]] int getPickupCountForWave() const;
     [[nodiscard]] bool needSpawnMorePickups() const;
-    bool isFinishedCurrentWave() const;
 
 private:
     World& m_world;
@@ -57,7 +56,6 @@ private:
     std::map<PickupType, const sf::Texture*> m_texturesPickups;
 
     size_t m_subPickupTouchId{0};
-    size_t m_subGameOverId{0};
     int m_currentWaveIndex{1};
 
     size_t m_activePickups{0};

@@ -36,6 +36,7 @@ private:
     Vector2u& m_resolution;
     EventBus& m_events;
     sf::View m_view;
+    sf::Sprite m_background;
 
     sf::Font m_font;
     sf::Text m_title;

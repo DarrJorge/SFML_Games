@@ -3,20 +3,18 @@
 //
 
 #include "Enemy.h"
-#include <numbers>
 
 using namespace sf;
 
-Enemy::Enemy(const Sprite& sprite, const Vector2f& position, float speed, float health)
-    : m_sprite(sprite), m_position(position), m_speed(speed), m_health(health)
+Enemy::Enemy(Sprite sprite, const Vector2f& position, const EnemyData& data)
+    : m_sprite(std::move(sprite)), m_position(position), m_data(data), m_speed(data.speed), m_health(data.health)
 {
     m_sprite.setOrigin(Vector2f{5.f, 5.f});
     m_alive = true;
 }
 
-sf::FloatRect Enemy::getPosition() const
+FloatRect Enemy::getPosition() const
 {
-
     return m_sprite.getGlobalBounds();
 }
 
@@ -55,7 +53,7 @@ void Enemy::setTarget(const sf::Vector2f& target)
     m_target = target;
 }
 
-int Enemy::attack() const
+int32_t Enemy::attack() const
 {
-    return 2; // @TODO need different damage from different types enemy
+    return m_data.damage;
 }

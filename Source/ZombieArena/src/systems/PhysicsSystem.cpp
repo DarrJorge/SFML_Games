@@ -28,6 +28,8 @@ void PhysicsSystem::update(float deltaTime)
         if (!bullet.isInFlight()) continue;
 
         const auto& bAabb = bullet.getBounds();
+        const auto& bulletCenter = Utils::rectCenter(bAabb);
+        const float bulletRadius = std::min(bAabb.size.x, bAabb.size.y);
 
         for (size_t j = 0; j < enemies.size(); ++j)
         {
@@ -38,7 +40,7 @@ void PhysicsSystem::update(float deltaTime)
             const float enemyRadius = std::min(enemyAabb.size.x, enemyAabb.size.y);
 
             // check collision bullet with enemy
-            if (bAabb.findIntersection(enemyAabb))
+            if (Utils::circlesIntersect(bulletCenter, enemyCenter, bulletRadius, enemyRadius))
             {
                 m_events.emit(BulletHitEnemyEvent{i, j});
             }

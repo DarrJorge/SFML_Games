@@ -39,7 +39,8 @@ namespace ZombieArena::Core
         {
             BLOATER,
             CHASER,
-            CRAWLER
+            CRAWLER,
+            COUNT
         };
 
         enum class SoundType
@@ -82,8 +83,10 @@ namespace ZombieArena::Core
         {
             float speed;
             float health;
+            int32_t damage;
 
-            EnemyData(float inSpeed, float inHealth) : speed(inSpeed), health(inHealth){}
+            EnemyData(float inSpeed, float inHealth, int32_t inDamage)
+                : speed(inSpeed), health(inHealth), damage(inDamage) {}
         };
     }
 
@@ -98,17 +101,11 @@ namespace ZombieArena::Core
         constexpr int BASE_PICKUPS_COUNT = 1;
     }
 
-    namespace Texts
-    {
-        constexpr std::string_view PAUSED_TEXT("Press Enter to continue");
-        constexpr std::string_view GAME_OVER_TEXT("Press Enter to play");
-    }
-
     namespace Paths
     {
         constexpr std::string_view AMMO_ICON_PATH("graphics/ammo_icon.png");
         constexpr std::string_view PLAYER_AVATAR_PATH("graphics/player.png");
-        constexpr std::string_view BACKGROUND_UI_PATH("graphics/background.png");
+        constexpr std::string_view BACKGROUND_UI_PATH("graphics/splashscreen.png");
         constexpr std::string_view BACKGROUND_GAME_PATH("graphics/background_sheet.png");
         constexpr std::string_view CROSSHAIR_SPRITE_PATH("graphics/crosshair.png");
 

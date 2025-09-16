@@ -13,9 +13,15 @@ MenuSystem::MenuSystem(Vector2u& res, EventBus& events)
         : m_resolution(res)
         , m_events(events)
         , m_view(FloatRect(Vector2f(0, 0), Vector2f(static_cast<float>(res.x), static_cast<float>(res.y))))
+        , m_background(ResourceManager::getTexture(Paths::BACKGROUND_UI_PATH))
         , m_font(ResourceManager::getFont(Paths::FONT_PATH))
         , m_title(m_font, "", 72)
 {
+    auto videoMode = VideoMode::getDesktopMode();
+    auto backTexture = ResourceManager::getTexture(Paths::BACKGROUND_UI_PATH);
+    float scaleX = static_cast<float>(videoMode.size.x) / backTexture.getSize().x;
+    float scaleY = static_cast<float>(videoMode.size.y) / backTexture.getSize().y;
+    m_background.setScale({scaleX, scaleY});
     updateTitle("Zombie Arena");
     initButtons();
 }
@@ -111,6 +117,8 @@ void MenuSystem::draw(RenderTarget& target)
     RectangleShape dim({ m_view.getSize() });
     dim.setFillColor(Color(0,0,0,180));
     target.draw(dim);
+
+    target.draw(m_background);
 
     target.draw(m_title);
     for (auto& b : m_buttons)

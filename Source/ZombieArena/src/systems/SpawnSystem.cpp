@@ -19,6 +19,12 @@ using namespace sf;
 using namespace ZombieArena::Utils;
 using namespace ZombieArena::Core::Constants;
 
+namespace
+{
+    constexpr float MIN_DIST = 200.f;
+    constexpr float MIN_DIST_SQUARE = MIN_DIST * MIN_DIST;
+}
+
 
 SpawnSystem::SpawnSystem(World& world, EventBus& events, float pickupRespawnSec)
     : m_world(world)
@@ -26,9 +32,9 @@ SpawnSystem::SpawnSystem(World& world, EventBus& events, float pickupRespawnSec)
     , m_pickupRespawnEvery(pickupRespawnSec)
     , m_pickupRespawnTimer(pickupRespawnSec)
 {
-    enemiesData.insert({EEnemyType::BLOATER, {3, 5}});
-    enemiesData.insert({EEnemyType::CHASER, {5, 1}});
-    enemiesData.insert({EEnemyType::CRAWLER, {1, 3}});
+    enemiesData.insert({EEnemyType::BLOATER, {2, 5, 3}});
+    enemiesData.insert({EEnemyType::CHASER, {5, 1, 1}});
+    enemiesData.insert({EEnemyType::CRAWLER, {3, 3, 2}});
 
     m_texturesEnemies.insert({EEnemyType::BLOATER, &ResourceManager::getTexture("graphics/bloater.png")});
     m_texturesEnemies.insert({EEnemyType::CHASER, &ResourceManager::getTexture("graphics/chaser.png")});
@@ -76,8 +82,8 @@ void SpawnSystem::update(float deltaTime)
         m_pickupRespawnTimer -= deltaTime;
         if (m_pickupRespawnTimer <= 0.f)
         {
-            const int addPickups = getPickupCountForWave(m_currentWaveIndex) - m_world.pickups().size();
-            spawnPickups(addPickups);
+            const int deficit = std::max(0, static_cast<int>(getPickupCountForWave() - m_activePickups));
+            if (deficit > 0) spawnPickups(deficit);
             m_pickupRespawnTimer = m_pickupRespawnEvery;
         }
     }
@@ -87,9 +93,8 @@ void SpawnSystem::spawnEnemies(int count)
 {
     auto& rng = m_world.rng();
     const Vector2f playerPos = m_world.player().getCenter();
-    const float MIN_DIST = 200.f;
 
-    std::uniform_int_distribution<int> typeDist(0, static_cast<int>(EEnemyType::CRAWLER));
+    std::uniform_int_distribution<int> typeDist(0, static_cast<int>(EEnemyType::COUNT) - 1);
     std::uniform_int_distribution<int> modifierDist(1, 3);
 
     for (int i = 0; i < count; ++i)
@@ -99,10 +104,11 @@ void SpawnSystem::spawnEnemies(int count)
         const EnemyData& enemyData = enemiesData.at(type);
         const float speed = enemyData.speed * modifier;
 
-        Sprite sprite(*m_texturesEnemies.at(type));
+        Vector2f pos = randomPointFarFrom(playerPos, MIN_DIST_SQUARE, TILE_SIZE);
+        auto enemy = std::make_unique<Enemy>(Sprite{*m_texturesEnemies.at(type)}, pos, enemyData);
+        if (!enemy) continue;
 
-        Vector2f pos = randomPointFarFrom(playerPos, MIN_DIST, 32.f);
-        auto enemy = std::make_unique<Enemy>(sprite, pos, speed, enemyData.health);
+        enemy->setSpeed(speed);
         enemy->setTarget(playerPos);
         m_world.enemies().push_back(std::move(enemy));
     }
@@ -116,7 +122,7 @@ void SpawnSystem::spawnPickups(int count)
 
     for (int i = 0; i < count; ++i)
     {
-        Vector2f pos = randomPointInArena(34.f);
+        Vector2f pos = randomPointInArena(TILE_SIZE);
 
         const auto type = static_cast<PickupType>(typeDist(rng));
         const PickupData& value = pickupsData.at(type);
@@ -159,7 +165,7 @@ Vector2f SpawnSystem::randomPointFarFrom(const Vector2f& from, float minDistance
     for (int tries = 0; tries < 16; ++tries)
     {
         sf::Vector2f p = randomPointInArena(margin);
-        if (Utils::length({p.x - from.x, p.y - from.y}) >= minDistance)
+        if (Utils::squaredLength({p.x - from.x, p.y - from.y}) >= minDistance)
         {
             return p;
         }
@@ -167,26 +173,12 @@ Vector2f SpawnSystem::randomPointFarFrom(const Vector2f& from, float minDistance
     return randomPointInArena(margin);
 }
 
-int SpawnSystem::getPickupCountForWave(int waveIndex) const
+int SpawnSystem::getPickupCountForWave() const
 {
-    return std::max(1, BASE_PICKUPS_COUNT * BASE_PICKUPS_COUNT);
+    return std::max(1, BASE_PICKUPS_COUNT * m_currentWaveIndex);
 }
 
 bool SpawnSystem::needSpawnMorePickups() const
 {
-    return m_pickupRespawnEvery > 0.f && m_activePickups < getPickupCountForWave(m_currentWaveIndex);
-}
-
-bool SpawnSystem::isFinishedCurrentWave() const
-{
-    if (m_world.enemies().empty()) return true;
-
-    auto& enemies = m_world.enemies();
-
-    const bool anyAlive = std::any_of(enemies.begin(), enemies.end(),
-        [](const auto& enemy) {
-            return enemy && enemy->isAlive();
-    });
-
-    return !anyAlive;
+    return m_pickupRespawnEvery > 0.f && m_activePickups < getPickupCountForWave();
 }

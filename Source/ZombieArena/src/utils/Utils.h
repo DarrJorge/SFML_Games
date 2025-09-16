@@ -24,6 +24,11 @@ namespace ZombieArena::Utils
             return {v.x * inv, v.y * inv};
         }
 
+        static float squaredLength(const Vector2f& v)
+        {
+            return v.x*v.x + v.y*v.y;
+        }
+
         static float length(const Vector2f& v)
         {
             return std::sqrt(v.x*v.x + v.y*v.y);
