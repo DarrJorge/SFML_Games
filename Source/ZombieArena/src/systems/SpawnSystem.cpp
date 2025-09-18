@@ -7,13 +7,13 @@
 #include <random>
 #include <algorithm>
 #include <memory>
-#include "ResourceManager.h"
 
 #include "../core/Events.h"
 #include "../world/World.h"
 #include "../utils/Utils.h"
-#include "../world/pickups/HealthPickup.h"
-#include "../world/pickups/AmmoPickup.h"
+#include "../core/SpawnConfig.h"
+#include "factory/EnemyFactory.h"
+#include "factory/PickupFactory.h"
 
 using namespace sf;
 using namespace ZombieArena::Utils;
@@ -26,27 +26,16 @@ namespace
 }
 
 
-SpawnSystem::SpawnSystem(World& world, EventBus& events, float pickupRespawnSec)
+SpawnSystem::SpawnSystem(World& world, EventBus& events, const SpawnConfig& cfg, const EnemyFactory& enemyFactory,
+                         const PickupFactory& pickupFactory, float pickupRespawnSec)
     : m_world(world)
     , m_events(events)
+    , m_config(cfg)
+    , m_enemyFactory(enemyFactory)
+    , m_pickupFactory(pickupFactory)
     , m_pickupRespawnEvery(pickupRespawnSec)
     , m_pickupRespawnTimer(pickupRespawnSec)
 {
-    enemiesData.insert({EEnemyType::BLOATER, {2, 5, 3}});
-    enemiesData.insert({EEnemyType::CHASER, {5, 1, 1}});
-    enemiesData.insert({EEnemyType::CRAWLER, {3, 3, 2}});
-
-    m_texturesEnemies.insert({EEnemyType::BLOATER, &ResourceManager::getTexture("graphics/bloater.png")});
-    m_texturesEnemies.insert({EEnemyType::CHASER, &ResourceManager::getTexture("graphics/chaser.png")});
-    m_texturesEnemies.insert({EEnemyType::CRAWLER, &ResourceManager::getTexture("graphics/crawler.png")});
-
-
-    pickupsData.insert({PickupType::HEALTH, {PickupType::HEALTH, 10, 5, 5}});
-    pickupsData.insert({PickupType::AMMO, {PickupType::AMMO, 10, 5, 5}});
-
-    m_texturesPickups.insert({PickupType::HEALTH, &ResourceManager::getTexture("graphics/health_pickup.png")});
-    m_texturesPickups.insert({PickupType::AMMO, &ResourceManager::getTexture("graphics/ammo_pickup.png")});
-
     subscribe();
 }
 
@@ -94,18 +83,20 @@ void SpawnSystem::spawnEnemies(int count)
     auto& rng = m_world.rng();
     const Vector2f playerPos = m_world.player().getCenter();
 
-    std::uniform_int_distribution<int> typeDist(0, static_cast<int>(EEnemyType::COUNT) - 1);
+    const auto& types = m_config.enemyTypes();
+    std::uniform_int_distribution<int> typeDist(0, (int)types.size()-1);
     std::uniform_int_distribution<int> modifierDist(1, 3);
 
     for (int i = 0; i < count; ++i)
     {
-        auto type = static_cast<EEnemyType>(typeDist(rng));
+        const auto type = types[typeDist(rng)];
         const float modifier = static_cast<float>(modifierDist(rng));
-        const EnemyData& enemyData = enemiesData.at(type);
-        const float speed = enemyData.speed * modifier;
+
+        const EnemyData& data = m_config.enemyData(type);
+        const float speed = data.speed * modifier;
 
         Vector2f pos = randomPointFarFrom(playerPos, MIN_DIST_SQUARE, TILE_SIZE);
-        auto enemy = std::make_unique<Enemy>(Sprite{*m_texturesEnemies.at(type)}, pos, enemyData);
+        auto enemy = m_enemyFactory.make(type, pos);
         if (!enemy) continue;
 
         enemy->setSpeed(speed);
@@ -118,27 +109,16 @@ void SpawnSystem::spawnPickups(int count)
 {
     auto& rng = m_world.rng();
 
-    std::uniform_int_distribution<int> typeDist(0, static_cast<int>(PickupType::COUNT) - 1);
+    const auto& types = m_config.pickupTypes();
+    std::uniform_int_distribution<int> typeDist(0, (int)types.size()-1);
 
     for (int i = 0; i < count; ++i)
     {
         Vector2f pos = randomPointInArena(TILE_SIZE);
 
-        const auto type = static_cast<PickupType>(typeDist(rng));
-        const PickupData& value = pickupsData.at(type);
-
-        std::unique_ptr<Pickup> pickup;
-
-        switch (type)
-        {
-            case PickupType::AMMO:
-                pickup = std::make_unique<AmmoPickup>(*m_texturesPickups.at(type), pos, value.Value);
-                break;
-
-            case PickupType::HEALTH:
-                pickup = std::make_unique<HealthPickup>(*m_texturesPickups.at(type), pos, value.Value);
-                break;
-        }
+        const auto type = types[typeDist(rng)];
+        auto pickup = m_pickupFactory.make(type, pos);
+        if (!pickup) continue;
 
         ++m_activePickups;
 

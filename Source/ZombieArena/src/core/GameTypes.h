@@ -110,6 +110,18 @@ namespace ZombieArena::Core
         constexpr std::string_view CROSSHAIR_SPRITE_PATH("graphics/crosshair.png");
 
         constexpr std::string_view FONT_PATH("fonts/zombiecontrol.ttf");
-    }
 
+        namespace Enemies
+        {
+            constexpr std::string_view ENEMY_BLOATER("graphics/bloater.png");
+            constexpr std::string_view ENEMY_CHASER("graphics/chaser.png");
+            constexpr std::string_view ENEMY_CRAWLER("graphics/crawler.png");
+        }
+
+        namespace Pickups
+        {
+            constexpr std::string_view AMMO_PICKUP("graphics/ammo_pickup.png");
+            constexpr std::string_view HEALTH_PICKUP("graphics/health_pickup.png");
+        }
+    }
 }

@@ -7,24 +7,19 @@
 #include <SFML/System/Vector2.hpp>
 #include <SFML/Graphics.hpp>
 #include <SFML/Graphics/Rect.hpp>
-#include <memory>
-#include <vector>
-#include <cstddef>
-#include <map>
-#include "../core/GameTypes.h"
 
 class World;
 class EventBus;
-class Enemy;
-class Pickup;
-
-using namespace ZombieArena::Core::Types;
+class SpawnConfig;
+class EnemyFactory;
+class PickupFactory;
 
 
 class SpawnSystem
 {
 public:
-    explicit SpawnSystem(World& world, EventBus& events, float pickupRespawnSec = 0.f);
+    explicit SpawnSystem(World& world, EventBus& events, const SpawnConfig& cfg, const EnemyFactory& enemyFactory,
+                         const PickupFactory& pickupFactory, float pickupRespawnSec = 0.f);
     ~SpawnSystem();
 
     void spawnNextWave(int waveIndex, int baseEnemies, int pickupsCount);
@@ -46,14 +41,12 @@ private:
     World& m_world;
     EventBus& m_events;
 
+    const SpawnConfig& m_config;
+    const EnemyFactory& m_enemyFactory;
+    const PickupFactory& m_pickupFactory;
+
     float m_pickupRespawnEvery{0.f};
     float m_pickupRespawnTimer{0.f};
-
-    std::map<EEnemyType, EnemyData> enemiesData;
-    std::map<EEnemyType, const sf::Texture*> m_texturesEnemies;
-
-    std::map<PickupType, PickupData> pickupsData;
-    std::map<PickupType, const sf::Texture*> m_texturesPickups;
 
     size_t m_subPickupTouchId{0};
     int m_currentWaveIndex{1};

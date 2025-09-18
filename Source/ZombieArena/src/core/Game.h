@@ -16,6 +16,9 @@
 #include "../systems/HUDSystem.h"
 #include "../systems/SoundSystem.h"
 #include "../ui/MenuSystem.h"
+#include "SpawnConfig.h"
+#include "../systems/factory/EnemyFactory.h"
+#include "../systems/factory/PickupFactory.h"
 
 using namespace ZombieArena::Core::Types;
 
@@ -50,6 +53,10 @@ private:
     RenderSystem m_render;
     HUDSystem m_hud;
     SoundSystem m_sound;
+
+    EnemyFactory m_enemyFactory;
+    PickupFactory m_pickupFactory;
+    SpawnConfig m_spawnConfig;
 
     int m_currentWaveIndex{1};
 
